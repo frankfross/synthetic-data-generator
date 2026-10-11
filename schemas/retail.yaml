@@ -1,0 +1,86 @@
+# Sample retail schema: customers -> orders -> order_items, products -> order_items.
+seed: 42
+
+tables:
+  - name: customers
+    row_count: 1000
+    columns:
+      - name: id
+        type: pk
+      - name: full_name
+        type: name
+      - name: email
+        type: email
+        unique: true
+      - name: city
+        type: city
+      - name: state
+        type: state
+      - name: signup_date
+        type: date
+        start: "2022-01-01"
+        end: "2025-12-31"
+      - name: segment
+        type: choice
+        values: ["standard", "premium", "enterprise"]
+        weights: [70, 25, 5]
+
+  - name: products
+    row_count: 200
+    columns:
+      - name: id
+        type: pk
+      - name: sku
+        type: uuid
+        unique: true
+      - name: product_name
+        type: text
+        min_words: 2
+        max_words: 4
+      - name: category
+        type: choice
+        values: ["electronics", "apparel", "home", "sports", "books"]
+      - name: unit_price
+        type: float
+        min: 4.99
+        max: 1499.99
+
+  - name: orders
+    row_count: 5000
+    columns:
+      - name: id
+        type: pk
+      - name: customer_id
+        type: foreign_key
+        to: customers.id
+      - name: order_ts
+        type: datetime
+        start: "2023-01-01"
+        end: "2025-12-31"
+      - name: status
+        type: choice
+        values: ["completed", "shipped", "cancelled", "refunded"]
+        weights: [80, 12, 5, 3]
+      - name: channel
+        type: choice
+        values: ["web", "mobile", "store"]
+
+  - name: order_items
+    row_count: 12000
+    columns:
+      - name: id
+        type: pk
+      - name: order_id
+        type: foreign_key
+        to: orders.id
+      - name: product_id
+        type: foreign_key
+        to: products.id
+      - name: quantity
+        type: int
+        min: 1
+        max: 10
+      - name: discount_pct
+        type: float
+        min: 0.0
+        max: 0.4
